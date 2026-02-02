@@ -81,9 +81,7 @@ void loop() {
     float t = dht.readTemperature();
 
     Firebase.RTDB.setFloat(&fbdo, "SENSORS/1/humidity", h);
-    Serial.println("Humidity" + h)
     Firebase.RTDB.setFloat(&fbdo, "SENSORS/1/temperature", t);
-    Serial.println("Temperature" + t)
   
 
     if (Firebase.RTDB.getBool(&fbdo, "controls/waterRunning")) {
