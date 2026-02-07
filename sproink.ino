@@ -1,6 +1,5 @@
  #include <Wire.h>
 #include <Arduino.h>
-#include <ESP8266WiFi.h>
 #include <Firebase_ESP_Client.h>
 #include <DHT.h>
 
@@ -13,6 +12,7 @@
 #define Water D5
 #define Fertilizer D6
 #define Pesticide D6
+#define Pump D7
 
 
 #define WIFI_SSID "So Good"
@@ -38,9 +38,11 @@ void setup() {
   pinMode(Water, OUTPUT);
   pinMode(Fertilizer, OUTPUT);
   pinMode(Pesticide, OUTPUT);
+  pinMode(Pump, OUTPUT);
   digitalWrite(Water, HIGH);
   digitalWrite(Fertilizer, HIGH);
   digitalWrite(Pesticide, HIGH);
+  digitalWrite(Pump, HIGH);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   Serial.print("Connecting to Wi-Fi");
   while (WiFi.status() != WL_CONNECTED) {
@@ -82,6 +84,19 @@ void loop() {
 
     Firebase.RTDB.setFloat(&fbdo, "SENSORS/1/humidity", h);
     Firebase.RTDB.setFloat(&fbdo, "SENSORS/1/temperature", t);
+
+     if (Firebase.RTDB.getBool(&fbdo, "controls/pumpRunning")) {
+      if (fbdo.dataType() == "boolean"){
+      bool pumpStateStr = fbdo.boolData();
+      Serial.println("Seccess: " + fbdo.dataPath() + ": " + pumpStateStr + "(" + fbdo.dataType() + ")");
+      bool pump = (pumpStateStr == false) ? HIGH : LOW;
+      digitalWrite(Pump, pump);
+      }
+      
+    } else {
+      Serial.println("Failed to read Auto: " + fbdo.errorReason());
+    }
+  
   
 
     if (Firebase.RTDB.getBool(&fbdo, "controls/waterRunning")) {
@@ -123,3 +138,6 @@ void loop() {
 
   }
 }
+
+
+
