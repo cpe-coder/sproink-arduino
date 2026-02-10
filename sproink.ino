@@ -9,10 +9,12 @@
 
 #define DHTPIN D3
 #define DHTTYPE DHT11
-#define Water D5
-#define Fertilizer D6
+#define Water D3
+#define Fertilizer D5
 #define Pesticide D6
 #define Pump D7
+#define soil1 D1
+#define soil2 D2
 
 
 #define WIFI_SSID "So Good"
@@ -39,6 +41,8 @@ void setup() {
   pinMode(Fertilizer, OUTPUT);
   pinMode(Pesticide, OUTPUT);
   pinMode(Pump, OUTPUT);
+  pinMode(soil1, INPUT);
+  pinMode(soil2, INPUT);
   digitalWrite(Water, HIGH);
   digitalWrite(Fertilizer, HIGH);
   digitalWrite(Pesticide, HIGH);
@@ -81,9 +85,17 @@ void loop() {
 
     float h = dht.readHumidity();
     float t = dht.readTemperature();
+    float moisture_percentage1;
+    float moisture_percentage2;
+
+    moisture_percentage1 = ( 100.00 - ( (analogRead(soil1)/1023.00) * 100.00 ) );
+    moisture_percentage2 = ( 100.00 - ( (analogRead(soil2)/1023.00) * 100.00 ) );
+
 
     Firebase.RTDB.setFloat(&fbdo, "SENSORS/1/humidity", h);
     Firebase.RTDB.setFloat(&fbdo, "SENSORS/1/temperature", t);
+    Firebase.RTDB.setBool(&fbdo, "SENSORS/1/soil1", moisture_percentage1);
+    Firebase.RTDB.setBool(&fbdo, "SENSORS/1/soil2", moisture_percentage2);
 
      if (Firebase.RTDB.getBool(&fbdo, "controls/pumpRunning")) {
       if (fbdo.dataType() == "boolean"){
